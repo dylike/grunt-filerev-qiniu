@@ -1,4 +1,4 @@
-# grunt-qiniu
+# grunt-filerev-qiniu
 
 > upload css, js, images... to qiniu based on grunt.
 
