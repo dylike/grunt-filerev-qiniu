@@ -58,17 +58,17 @@ module.exports = function (grunt) {
         var done = this.async();
 
         if (!(options.accessKey && options.secretKey && options.bucket && options.domain)) {
-            grunt.fail.fatal('options need accessKey, secretKey, bucket and domain!');
+            grunt.fail.fatal('options need accessKey, secretKey, bucket!');
         }
 
         qiniu.conf.ACCESS_KEY = options.accessKey;
         qiniu.conf.SECRET_KEY = options.secretKey;
 
         var bucket = options.bucket;
-        var domain = options.domain;
+        var domain = options.domain || '';
 
         /**
-         * 获取locator 数组
+         * locator from grunt.filerev.summary or options.revmap
          * @type {*}
          * @example
          * { 'dist/scripts/scripts.js': 'dist/scripts/scripts.8158506f.js'
@@ -83,11 +83,14 @@ module.exports = function (grunt) {
 
         Object.keys(locator).forEach(function (k) {
             var srcPath = locator[k];
+
             var absoluteFilePath = srcPath;
+
             if (!grunt.file.isPathAbsolute(srcPath)) {
                 absoluteFilePath = path.resolve(srcPath);
             }
-            var key = path.basename(absoluteFilePath);
+
+            var key = absoluteFilePath;
 
             grunt.log.debug('Generate uptoken for ' + key);
 
@@ -103,24 +106,13 @@ module.exports = function (grunt) {
                 });
             });
 
-            //var extra = new qiniu.io.PutExtra();
-            //qiniu.io.putFile(token, key, absoluteFilePath, extra, function (err, ret) {
-            //    if (!err) {
-            //        // 上传成功， 处理返回值
-            //        console.log(ret.hash, ret.key, ret.persistentId);
-            //        grunt.log.writeln('done!');
-            //    } else {
-            //        // 上传失败， 处理返回代码
-            //        console.log(err);
-            //    }
-            //});
-
             promiseArray.push(promise);
         });
 
         q.all(promiseArray)
             .then(function () {
-                grunt.filerev.summary = newSummary;
+                //grunt.filerev.summary = newSummary;
+                grunt.log.writeln('All done...');
                 done();
             });
     });

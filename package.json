@@ -1,7 +1,7 @@
 {
   "name": "grunt-filerev-qiniu",
-  "description": "upload css, js, images... to qiniu based on grunt.",
-  "version": "0.1.0",
+  "description": "upload css, js, images... to qiniu based on grunt-filerev.",
+  "version": "0.1.1",
   "homepage": "https://github.com/dylike/grunt-filerev-qiniu",
   "author": {
     "name": "YuD",
