@@ -2,6 +2,8 @@
 
 > upload css, js, images... to qiniu based on grunt.
 
+[![Build Status](https://travis-ci.org/dylike/grunt-filerev-qiniu.svg?branch=master)](https://travis-ci.org/dylike/grunt-filerev-qiniu)
+
 ## Introduction
 
 For speed up the website, static files often stored in a special static file server or CDN.
