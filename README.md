@@ -4,10 +4,12 @@
 
 ## Introduction
 
-For speed up the website, static files often stored in a static file server or a CDN normally.
+For speed up the website, static files often stored in a special static file server or CDN.
 
-I'm using yo angular to generate my project scaffold, it's using the `filerev, usemin` to tag a file version, and
-rewrites file name based on `filerev`. So i just make this `grunt-filerev-qiniu` to upload static files such as images,
+I'm using `yo angular` to generate my project scaffold, it's using the `filerev, usemin` to tag a file version, and
+rewrites file name based on `filerev`.
+
+So `grunt-filerev-qiniu` is a quick way to upload static files such as images,
 styles, scripts to qiniu based on the `filerev` result `grunt.filerev.summary`.
 
 ## Getting Started
@@ -34,6 +36,7 @@ grunt.loadNpmTasks('grunt-filerev-qiniu');
 3. bucket
 4. domain
 5. revmap
+6. version
 
 ### Usage Examples
 
@@ -51,15 +54,29 @@ grunt.initConfig({
           optional
         */
         domain: 'Your domain'
-        revmap: 'Path of revmap file' // if not declared will directly use grunt.filerev.summary
+        revmap: 'Path of revmap file'
+        // if not declared will directly use grunt.filerev.summary
+        /* the revmap file should like
+        *    {
+        *       originName: newName
+        *       ......
+        *    }
+        */
+        version: 'version' // if have version, the url like http://domain/version/filename
     },
   },
 });
 ```
 ### Something more.
 
-When start with `filerev` and `usemin`, there is a sample config when using yo.
+When start with `filerev` and `usemin`, there is a sample config when using `usemin`.
 ```js
+
+var replaceWithQiniu = function(m) {
+    // if have version
+    return 'qiniu bocket domain' + path.join(version, path.basename(m)) + '?' + new Date().getTime();
+}
+
 usemin: {
     html: ['<%= yeoman.dist %>/{,*/}*.html'],
     css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
@@ -69,18 +86,11 @@ usemin: {
             '<%= yeoman.dist %>',
             '<%= yeoman.dist %>/images',
             '<%= yeoman.dist %>/styles'
-            //'http://7xixj1.com1.z0.glb.clouddn.com/'
         ],
         patterns: {
-            js: [[/((\.*\/)*images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images', null, function (m) {
-                return 'qiniu bucket domain' + m + '?' + new Date().getTime();
-            }]],
-            html: [[/((\.*\/)*(scripts|styles)\/[^''""]*\.(js|css))/g, 'Replacing cdn references', null, function (m) {
-                return 'qiniu bucket domain' + m + '?' + new Date().getTime();
-            }]],
-            css: [[/((\.*\/)*images\/[^)]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing cdn references', null, function (m) {
-                return 'qiniu bucket domain' + m + '?' + new Date().getTime();
-            }]]
+            js: [[/((\.*\/)*images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images', null, replaceWithQiniu]],
+            html: [[/((\.*\/)*(scripts|styles)\/[^''""]*\.(js|css))/g, 'Replacing cdn references', null, replaceWithQiniu]],
+            css: [[/((\.*\/)*images\/[^)]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing cdn references', null, replaceWithQiniu]]
         }
     }
 }
@@ -103,3 +113,4 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 2016-7-12 v0.1.0 init
+2016-7-18 v0.1.2 add options: version

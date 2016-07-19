@@ -31,12 +31,12 @@ module.exports = function (grunt) {
         filerev: {
             dist: {
                 src: [
-                    'test/scripts/{,*/}*.js',
-                    'test/styles/{,*/}*.css'
+                    'test/source/{,*/}*.*',
                 ],
                 dest: 'test/dest'
             }
         },
+
         // Configuration to be run (and then tested).
         qiniu: {
             dist: {
@@ -44,7 +44,8 @@ module.exports = function (grunt) {
                     accessKey: '_ATGryARBwpe-DEONUbpzef-OkKQXhWXulwgbp2V',
                     secretKey: 'nqV7A8pTd4ov7RpryIpxZJ_K2AFMfF4QHyXSkrZg',
                     bucket: 'metalab-test',
-                    domain: 'http://7xixj1.com1.z0.glb.clouddn.com/'
+                    domain: 'http://7xixj1.com1.z0.glb.clouddn.com/',
+                    version: 'grunt-filerev-qiniu'
                 }
             }
         },
@@ -67,8 +68,9 @@ module.exports = function (grunt) {
 
     // Whenever the "test" task is run, first clean the "tmp" dir, then run this
     // plugin's task(s), then test the result.
-    grunt.registerTask('test', ['clean', 'filerev', 'qiniu']);
-    //grunt.registerTask('test', ['clean', 'filerev', 'mQiniu', 'nodeunit']);
+    //grunt.registerTask('test', ['clean', 'filerev', 'qiniu']);
+    //grunt.registerTask('test', ['clean', 'filerev', 'qiniu', 'nodeunit']);
+    grunt.registerTask('test', ['clean', 'filerev', 'nodeunit']);
 
     // By default, lint and run all tests.
     grunt.registerTask('default', ['jshint', 'test']);

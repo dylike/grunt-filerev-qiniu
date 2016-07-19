@@ -90,7 +90,11 @@ module.exports = function (grunt) {
                 absoluteFilePath = path.resolve(srcPath);
             }
 
-            var key = absoluteFilePath;
+            var key = path.basename(absoluteFilePath);
+
+            if (options.version) {
+                key = path.join(options.version, key);
+            }
 
             grunt.log.debug('Generate uptoken for ' + key);
 
