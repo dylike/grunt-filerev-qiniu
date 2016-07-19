@@ -2,6 +2,9 @@
 
 var grunt = require('grunt');
 
+var request = require('request');
+var path = require('path');
+
 /*
  ======== A Handy Little Nodeunit Reference ========
  https://github.com/caolan/nodeunit
@@ -11,12 +14,12 @@ var grunt = require('grunt');
  test.done()
  Test assertions:
  test.ok(value, [message])
- test.equal(actual, expected, [message])
- test.notEqual(actual, expected, [message])
- test.deepEqual(actual, expected, [message])
- test.notDeepEqual(actual, expected, [message])
- test.strictEqual(actual, expected, [message])
- test.notStrictEqual(actual, expected, [message])
+ test.equal(filerev, origin, [message])
+ test.notEqual(filerev, origin, [message])
+ test.deepEqual(filerev, origin, [message])
+ test.notDeepEqual(filerev, origin, [message])
+ test.strictEqual(filerev, origin, [message])
+ test.notStrictEqual(filerev, origin, [message])
  test.throws(block, [error], [message])
  test.doesNotThrow(block, [error], [message])
  test.ifError(value)
@@ -29,19 +32,34 @@ exports.qiniu = {
     },
     dist: function (test) {
         //test expect 1
-        test.expect(1);
+        test.expect(3);
 
-        // compare source file and filerev file
-        var actual;
+        // compare source file and origin file
         grunt.file.recurse('test/dest', function (abspath, rootdir, subdir, filename) {
-            actual = grunt.file.read(abspath);
-            var expected = grunt.file.read('test/source/style.css');
-            test.equal(actual, expected, 'filerev file should equal to source file');
-            test.done();
+            var filerev = grunt.file.read(abspath);
+            var origin = grunt.file.read('test/source/script.js');
+            test.equal(filerev, origin, 'origin file should equal to source file');
+
+
+            var qiniuConfig = grunt.config.get('qiniu').dist.options;
+
+            var url = path.join(qiniuConfig.version ? qiniuConfig.version : '', filename);
+            url = qiniuConfig.domain + url;
+
+
+            request.get(url, function (a, b, c) {
+
+                // compare upload file and origin file
+                test.equal(filerev, c, 'upload file should equal to filerev file');
+
+                // compare uplaod file and source file
+                test.equal(origin, c, 'upload file should equal to origin file');
+
+                test.done();
+            });
+
         });
 
-        // compare upload file and filerev file
 
-        // compare uplaod file and source file
     }
 };

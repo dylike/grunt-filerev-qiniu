@@ -76,7 +76,7 @@ When start with `filerev` and `usemin`, there is a sample config when using `use
 
 var replaceWithQiniu = function(m) {
     // if have version
-    return 'qiniu bocket domain' + path.join(version, path.basename(m)) + '?' + new Date().getTime();
+    return 'qiniu bocket domain' + path.join('version', path.basename(m)) + '?' + new Date().getTime();
 }
 
 usemin: {
