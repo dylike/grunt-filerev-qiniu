@@ -45,6 +45,7 @@ module.exports = function (grunt) {
                     secretKey: 'nqV7A8pTd4ov7RpryIpxZJ_K2AFMfF4QHyXSkrZg',
                     bucket: 'metalab-test',
                     domain: 'http://7xixj1.com1.z0.glb.clouddn.com/',
+                    revmap: 'test/json/revmap.json',
                     version: 'grunt-filerev-qiniu'
                 }
             }

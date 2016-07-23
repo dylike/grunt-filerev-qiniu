@@ -23,18 +23,29 @@
 //
 var getLocator = function (grunt, options) {
     var locator;
-    if (options.revmap) {
-        locator = grunt.file.readJSON(options.revmap);
-    } else if (grunt.filerev && grunt.filerev.summary) {
-        locator = grunt.filerev.summary;
+    if ((!options.revmap) && !(grunt.filerev && grunt.filerev.summary)) {
+        return grunt.fail.fatal('Need revmap options or grunt.filerev.summary');
     } else {
-        locator = function (p) {
-            return grunt.file.expand({
-                filter: 'isFile'
-            }, p);
-        };
+        if (grunt.filerev && grunt.filerev.summary) {
+
+            var locator = grunt.filerev.summary;
+
+            if (options.revmap) {
+                var result = grunt.file.readJSON(options.revmap);
+
+                Object.keys(result).forEach(function (element) {
+                    if (result.hasOwnProperty(element)) {
+                        locator[element] = result[element];
+                    }
+                });
+            }
+
+        } else {
+            locator = grunt.file.readJSON(options.revmap);
+        }
+
+        return locator;
     }
-    return locator;
 };
 
 
@@ -86,31 +97,35 @@ module.exports = function (grunt) {
 
             var absoluteFilePath = srcPath;
 
+
             if (!grunt.file.isPathAbsolute(srcPath)) {
                 absoluteFilePath = path.resolve(srcPath);
             }
 
-            var key = path.basename(absoluteFilePath);
+            if (grunt.file.isFile(absoluteFilePath)) {
+                var key = path.basename(absoluteFilePath);
 
-            if (options.version) {
-                key = path.join(options.version, key);
+                if (options.version) {
+                    key = path.join(options.version, key);
+                }
+
+                grunt.log.debug('Generate uptoken for ' + key);
+
+                var token = uptoken(bucket, key);
+
+                grunt.log.writeln('Start uploading ' + key);
+
+                var promise = q.Promise(function (resolve, reject) {
+                    q.ninvoke(qiniu.io, 'putFile', token, key, absoluteFilePath, null, function (err, ret) {
+                        grunt.log.writeln('Uploaded ' + ret.key);
+                        newSummary[k] = path.join(domain, ret.key);
+                        resolve();
+                    });
+                });
+
+                promiseArray.push(promise);
             }
 
-            grunt.log.debug('Generate uptoken for ' + key);
-
-            var token = uptoken(bucket, key);
-
-            grunt.log.writeln('Start uploading ' + key);
-
-            var promise = q.Promise(function (resolve, reject) {
-                q.ninvoke(qiniu.io, 'putFile', token, key, absoluteFilePath, null, function (err, ret) {
-                    grunt.log.writeln('Uploaded ' + ret.key);
-                    newSummary[k] = path.join(domain, ret.key);
-                    resolve();
-                });
-            });
-
-            promiseArray.push(promise);
         });
 
         q.all(promiseArray)
